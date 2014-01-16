@@ -1,0 +1,28 @@
+<html>
+<head>
+	<title>Height Grapher</title>
+
+	<!-- Stylesheets -->
+	<link rel="stylesheet" type="text/css" href="css/hg.css">
+	<link rel="stylesheet" type="text/css" href="css/hg.sidebar.css">
+
+	<!-- Third Party Javascript -->
+	<script type="text/javascript" src="js/jq/jquery.js"></script>
+
+
+	<!-- My Own javascript -->
+	<script type="text/javascript" src="js/hg.js"></script>
+	<script type="text/javascript" src="js/hg.shell.js"></script>
+	<script type="text/javascript" src="js/hg.draw.js"></script>
+	<script type="text/javascript" src="js/hg.calculator.js"></script>
+
+	<script type="text/javascript">
+		$(function () { hg.initModule( $('#hg') ); });
+		/* Above is shorthand for $(document).ready(func..) */
+	</script>
+
+</head>
+<body>
+	<div id="hg"></div>
+</body>
+</html>
