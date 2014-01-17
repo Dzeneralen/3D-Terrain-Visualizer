@@ -40,6 +40,8 @@ hg.shell = (function () {
 		stateMap.$container = $container;
 		stateMap.$container.html( configMap.main_html );
 		setJqueryMap();
+
+		hg.filehandler.initModule( jqueryMap.$sidebar );
 	};
 
 
