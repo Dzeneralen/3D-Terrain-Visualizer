@@ -17,7 +17,8 @@ hg.filehandler = (function () {
 	var configMap = {
 		main_html : String()
 			+ '<div class="hg-filehandler-dropbox"></div>',
-		dropbox_infotext : 'Drop your GPS files here'
+		dropbox_infotext : '<div class="hg-filehandler-dropbox-text">Drop your GPS files here</div>',
+		callback_func : null
 	},
 	stateMap = {
 		$container : null
@@ -47,12 +48,12 @@ hg.filehandler = (function () {
 		return false;
 	};
 
-	readFileContentAsText = function ( files, i ) {
+	readFileContentAsText = function ( files ) {
 		console.log('Read file as text');
 		var fileReader = new FileReader();
 
-		fileReader.onload = function(e) {
-			console.log('Result :'+i+' '+fileReader.result);
+		fileReader.onload = function() {
+			configMap.callback_func( fileReader.result );
 		};
 
 		fileReader.readAsText(files);
@@ -84,6 +85,7 @@ hg.filehandler = (function () {
 		if( checkFileApiSupport() ){
 			jqueryMap.$dropbox[0].addEventListener('dragover', onDragOver, false);
 			jqueryMap.$dropbox[0].addEventListener('drop', onDropFile, false);
+			jqueryMap.$dropbox[0].innerHTML = configMap.dropbox_infotext;
 
 			return true;
 		}
@@ -91,9 +93,10 @@ hg.filehandler = (function () {
 		alert('The File APIs are not fully supported in this browser.');
 	};
 
-	initModule = function ( $container ) {
+	initModule = function ( $container, callback ) {
 		stateMap.$container = $container;
 		stateMap.$container.html( configMap.main_html );
+		if(callback) { configMap.callback_func = callback; }
 		setJqueryMap();
 
 		initReader();

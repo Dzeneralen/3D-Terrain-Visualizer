@@ -25,6 +25,7 @@ hg.shell = (function () {
 	},
 	jqueryMap = {},
 	initModule,
+	parseTextString,
 	setJqueryMap;
 
 	setJqueryMap = function () {
@@ -36,12 +37,25 @@ hg.shell = (function () {
 		};
 	};
 
+	parseTextString = function ( string ) {
+		var i,
+			numLines,
+			stringArray = string.split('\n');
+
+		numLines = stringArray.length;
+
+		for(i = 0; i < numLines; i++)
+		{
+			console.log(stringArray[i]);
+		}
+	};
+
 	initModule = function ( $container ) {
 		stateMap.$container = $container;
 		stateMap.$container.html( configMap.main_html );
 		setJqueryMap();
 
-		hg.filehandler.initModule( jqueryMap.$sidebar );
+		hg.filehandler.initModule( jqueryMap.$sidebar, parseTextString );
 	};
 
 
