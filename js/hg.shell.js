@@ -26,6 +26,7 @@ hg.shell = (function () {
 	jqueryMap = {},
 	initModule,
 	parseTextString,
+	parsePointFromString,
 	setJqueryMap;
 
 	setJqueryMap = function () {
@@ -37,6 +38,24 @@ hg.shell = (function () {
 		};
 	};
 
+	parsePointFromString = function ( string ) {
+		var x,
+			y, 
+			height,
+			tempArray;
+
+		tempArray = string.split(' ');
+		x = tempArray[0];
+		y = tempArray[1];
+		height = tempArray[2];
+
+		if( height !== 'undefined' ) {
+			console.log('x: '+x+" y: "+y+" height: "+height);
+		}
+
+
+	};
+
 	parseTextString = function ( string ) {
 		var i,
 			numLines,
@@ -45,8 +64,8 @@ hg.shell = (function () {
 		numLines = stringArray.length;
 
 		for(i = 0; i < numLines; i++)
-		{
-			console.log(stringArray[i]);
+		{	
+			parsePointFromString( stringArray[i] );
 		}
 	};
 
