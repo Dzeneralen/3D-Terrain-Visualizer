@@ -11,13 +11,14 @@
 	border: 2px dashed white;
 	border-radius: 5px;
 	background-color: #33f;
-
-	color: white;
-	text-align: center;
 }
 
 .hg-filehandler-dropbox-text {
-	margin-top: 100%;
-	margin-bottom: 100%;	
+	color: white;
+	text-align: center;
+	position: relative;
+	top: 45%;
+	bottom: 45%;
+
 }
 
