@@ -25,7 +25,7 @@ hg.shell = (function () {
 	},
 	jqueryMap = {},
 	initModule,
-	parseTextString,
+	parseTextStringToPoints,
 	parsePointFromString,
 	setJqueryMap;
 
@@ -41,31 +41,46 @@ hg.shell = (function () {
 	parsePointFromString = function ( string ) {
 		var x,
 			y, 
-			height,
+			value,
 			tempArray;
 
 		tempArray = string.split(' ');
 		x = tempArray[0];
 		y = tempArray[1];
-		height = tempArray[2];
+		value = tempArray[2];
 
-		if( height !== 'undefined' ) {
-			console.log('x: '+x+" y: "+y+" height: "+height);
+		if( typeof value !== 'undefined' ) {
+			return {
+				x : x,
+				y : y,
+				value : value
+			};
 		}
+		return false;
 
 
 	};
 
-	parseTextString = function ( string ) {
+	parseTextStringToPoints = function ( string ) {
 		var i,
 			numLines,
+			point,
+			pointArray,
 			stringArray = string.split('\n');
 
 		numLines = stringArray.length;
+		pointArray = [];
 
 		for(i = 0; i < numLines; i++)
 		{	
-			parsePointFromString( stringArray[i] );
+			point = false;
+			point = parsePointFromString( stringArray[i] );
+			if ( point ) { pointArray.push( point ); }
+		}
+		
+		if( pointArray.length > 0 ){
+			//Call a function in hg.calculator.js
+			
 		}
 	};
 
@@ -74,7 +89,7 @@ hg.shell = (function () {
 		stateMap.$container.html( configMap.main_html );
 		setJqueryMap();
 
-		hg.filehandler.initModule( jqueryMap.$sidebar, parseTextString );
+		hg.filehandler.initModule( jqueryMap.$sidebar, parseTextStringToPoints );
 	};
 
 
