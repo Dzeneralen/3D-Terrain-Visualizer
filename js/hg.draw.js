@@ -43,7 +43,32 @@ hg.draw = (function () {
 	initGL,
 	getVertexShader,
 	getFragmentShader,
+	getColorValue,
+	cameraChangeEvent,
 	initShaders;
+
+	cameraChangeEvent = function( key ) {
+		switch( key ){
+			case 'up':
+				break;
+			case 'down':
+				break;
+			case 'left':
+				break;
+			case 'right':
+				break;
+			default:
+				break;
+		}
+	};
+
+	getColorValue = function( value, minValue, maxValue ) {
+		var intervalValue = (value - minValue) / (maxValue - minValue);
+		return { r : intervalValue,
+				 g : 3*(intervalValue * (1.0 - intervalValue)),
+				 b : 1 - intervalValue
+				};
+	};
 
 	getFragmentShader = function() {
 		if( webgl === undefined ) { return; }
