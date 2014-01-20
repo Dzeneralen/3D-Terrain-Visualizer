@@ -66,6 +66,8 @@ hg.shell = (function () {
 			numLines,
 			point,
 			pointArray,
+			populateObj = {},
+			solverObj = {},
 			stringArray = string.split('\n');
 
 		numLines = stringArray.length;
@@ -80,9 +82,19 @@ hg.shell = (function () {
 		
 		if( pointArray.length > 0 ){
 			//Call a function in hg.calculator.js
-			
+			populateObj.array = pointArray;
+			populateObj.dim = 50;
+			hg.calculator.populateKnownValues( populateObj );
+
+			solverObj.dim = 50;
+			solverObj.maximumIterations = 5000;
+			solverObj.maximumChange = 0.001;
+			hg.calculator.solveHeightGrid( solverObj );
+
 		}
 	};
+
+
 
 	initModule = function ( $container ) {
 		stateMap.$container = $container;

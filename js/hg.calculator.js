@@ -47,7 +47,7 @@ hg.calculator = (function ( ) {
 	addKnownPoint = function ( i, j, heightValue ) {
 		try 
 		{
-			heightGrid[i][j] = heightValue;
+			heightGrid[i][j] = +(heightValue);
 			lockedValues[i][j] = 1;
 		} 
 		catch ( error ) 
@@ -56,8 +56,28 @@ hg.calculator = (function ( ) {
 		}
 	};
 
-	populateKnownValues = function () {
+	populateKnownValues = function ( obj ) {
 		/* Read the file specifics */
+		var i,
+			dim,
+			point,
+			numberOfPoints;
+
+		if( obj === undefined) { return false; }
+
+		dim = obj.dim || 0;
+		numberOfPoints = obj.array.length || 0;
+
+		allocateHeightGrid( dim );
+
+		for(i = 0; i < numberOfPoints; i++)
+		{	
+			point = obj.array[i];
+			addKnownPoint(point.x, point.y, point.value);
+		}
+
+		console.log("HGrid: ",heightGrid);
+		console.log("LGrid: ",lockedValues);
 
 
 		/* Add the value to the grid */
@@ -67,16 +87,18 @@ hg.calculator = (function ( ) {
 
 		if(lockedValues[i][j] === 1) { return false; }
 
-		if((i > 1 && i < dim) && (j > 1 && j < dim)){
+		dim = dim - 1;
+
+		if((i > 0 && i < dim) && (j > 0 && j < dim)){
 			heightGrid[i][j] = (heightGrid[i+1][j] + heightGrid[i-1][j] + heightGrid[i][j+1] + heightGrid[i][j-1]) * 0.25;
 		}
 		/* Along left side */
-		else if(i === 1 && (j > 1 && j < dim)) {
+		else if(i === 0 && (j > 0 && j < dim)) {
 			heightGrid[i][j] = (2.0 * heightGrid[i+1][j] + heightGrid[i][j+1] + heightGrid[i][j-1]) * 0.25;
 		}
 
 		/* Along right side	*/
-		else if(i === dim && (j > 1 && j < dim)) {
+		else if(i === dim && (j > 0 && j < dim)) {
 			heightGrid[i][j] = (2.0 * heightGrid[i-1][j] + heightGrid[i][j+1] + heightGrid[i][j-1]) * 0.25;
 		}
 
@@ -86,12 +108,12 @@ hg.calculator = (function ( ) {
 		}
 
 		/* Along the bottom	*/
-		else if(j === 1 && (i > 1 && i < dim)) {
+		else if(j === 0 && (i > 0 && i < dim)) {
 			heightGrid[i][j] = (heightGrid[i+1][j] + heightGrid[i-1][j] + 2.0 * heightGrid[i][j+1]) * 0.25;
 		}	 
 
 		/* Bottom Left */
-		else if(i === 1 && j === 1) {
+		else if(i === 0 && j === 0) {
 			heightGrid[i][j] = (2.0 * heightGrid[i+1][j] + 2.0 * heightGrid[i][j+1]) * 0.25;
 		}
 
@@ -102,22 +124,24 @@ hg.calculator = (function ( ) {
 
 
 		/* Bottom Right */
-		else if(i === dim && j === 1) {
+		else if(i === dim && j === 0) {
 			heightGrid[i][j] = (2.0 * heightGrid[i-1][j] + 2.0 * heightGrid[i][j+1]) * 0.25;
 		}
 
 		/* Top left */
-		else if(i === 1 && j === dim) {
+		else if(i === 0 && j === dim) {
 			heightGrid[i][j] = (2.0 * heightGrid[i+1][j] + 2.0 * heightGrid[i][j-1]) * 0.25;
 		}
 	};
 
 	solveHeightGrid = function ( obj ) {
+		if( obj === undefined ) { console.log("No object in solver");  return false; }
+
 		var i, 
 			j, 
 			iterationNumber, 
 			maximumIterations = obj.maximumIterations || 1000, 
-			dim = obj.dim || 0,
+			dim = obj.dim || 50,
 			numberOfSatisfied, 
 			oldValue, 
 			allSatisfiedCount = dim * dim,
@@ -140,6 +164,7 @@ hg.calculator = (function ( ) {
 			if(numberOfSatisfied === allSatisfiedCount)
 			{
 				console.log("Rate of change at an acceptable level after "+iterationNumber+" iterations!");
+				console.log("DONE HGrid: ",heightGrid);
 				return true;
 			}
 		}
@@ -148,5 +173,6 @@ hg.calculator = (function ( ) {
 	};
 
 	/* Public Functions */
-	return { solveHeightGrid : solveHeightGrid };
+	return { solveHeightGrid : solveHeightGrid,
+			 populateKnownValues : populateKnownValues };
 }());
