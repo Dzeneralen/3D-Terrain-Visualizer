@@ -82,13 +82,12 @@ hg.shell = (function () {
 		
 		if( pointArray.length > 0 ){
 			//Call a function in hg.calculator.js
-			populateObj.array = pointArray;
-			populateObj.dim = 50;
-			hg.calculator.populateKnownValues( populateObj );
+			populateObj.x_dim = 50;
+			populateObj.y_dim = 50;
+			populateObj.maximumChange = 0.0001;
 
-			solverObj.dim = 50;
-			solverObj.maximumIterations = 5000;
-			solverObj.maximumChange = 0.001;
+			hg.calculator.configureGrid( populateObj );
+			hg.calculator.populateKnownValues( pointArray );
 			hg.calculator.solveHeightGrid( solverObj );
 
 		}
@@ -102,6 +101,7 @@ hg.shell = (function () {
 		setJqueryMap();
 
 		hg.filehandler.initModule( jqueryMap.$sidebar, parseTextStringToPoints );
+		hg.draw.initModule( jqueryMap.$webgl );
 	};
 
 
