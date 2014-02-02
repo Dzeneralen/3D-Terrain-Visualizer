@@ -28,6 +28,7 @@ hg.calculator = (function ( ) {
 		addKnownPoint,
 		populateKnownValues,
 		configureGrid,
+		serializeElements,
 		relaxPoint;
 
 	createAreaSquare2D = function ( i_dim, j_dim ) {
@@ -45,6 +46,40 @@ hg.calculator = (function ( ) {
 
 		return array2D;
 	};	
+
+	serializeElements = function () {
+		var i,
+			j,
+			max = -9999999,
+			min = 999999,
+			tempElement,
+			elementsArray;
+
+		if(heightGrid === undefined) { return false; }
+
+		elementsArray = new Float32Array(settableOptions.x_dim * settableOptions.y_dim);
+
+		for(i = 0; i < settableOptions.x_dim; i++)
+		{
+			for(j = 0; j < settableOptions.y_dim; j++)
+			{
+				tempElement = heightGrid[i][j];
+				elementsArray[i + j] = tempElement;
+
+				max = (max > tempElement)? max : tempElement;
+				min = (min < tempElement)? min : tempElement;
+
+			}
+		}
+
+		return {
+			x_dim : settableOptions.x_dim,
+			y_dim : settableOptions.y_dim,
+			elements : elementsArray,
+			min : min,
+			max : max
+		};
+	};
 
 	allocateHeightGrid = function () {
 		heightGrid = createAreaSquare2D( settableOptions.x_dim, settableOptions.y_dim );
@@ -189,5 +224,6 @@ hg.calculator = (function ( ) {
 	/* Public Functions */
 	return { solveHeightGrid : solveHeightGrid,
 			 populateKnownValues : populateKnownValues,
-			 configureGrid : configureGrid };
+			 configureGrid : configureGrid,
+			 serializeElements : serializeElements };
 }());

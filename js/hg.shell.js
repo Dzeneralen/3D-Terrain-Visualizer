@@ -90,6 +90,11 @@ hg.shell = (function () {
 			hg.calculator.populateKnownValues( pointArray );
 			hg.calculator.solveHeightGrid( solverObj );
 
+			var serializedGrid = hg.calculator.serializeElements();
+			hg.draw.initializeMesh(serializedGrid);
+
+
+
 		}
 	};
 
@@ -102,6 +107,7 @@ hg.shell = (function () {
 
 		hg.filehandler.initModule( jqueryMap.$sidebar, parseTextStringToPoints );
 		hg.draw.initModule( jqueryMap.$webgl );
+
 	};
 
 
