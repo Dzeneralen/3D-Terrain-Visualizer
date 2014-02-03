@@ -123,7 +123,7 @@ hg.draw = (function () {
 
 			}
 		}
-		return  new Uint8Array(tempArray);
+		return  new Uint16Array(tempArray);
 	};
 
 	drawMesh = function( x_dim, y_dim ) {
@@ -151,6 +151,7 @@ hg.draw = (function () {
 
 			maxDim = (x_dim > y_dim)? x_dim : y_dim;
 			maxDim -= 1;
+			maxDim *= 0.5;
 			offsetX = (x_dim - 1.0) * 0.5;
 			offsetY = (y_dim - 1.0) * 0.5;
 
@@ -168,13 +169,12 @@ hg.draw = (function () {
 				var x = (i - offsetX) / maxDim;
 				var y = (j - offsetY) / maxDim ;
 				var z = heightArray[count] / max_z;
-				console.log("Adding point ("+x,y,z+")");
 				tempArray.push( (i - offsetX) / maxDim );	// X-coord
 				tempArray.push( (j - offsetY) / maxDim );	// Y-coord
 				tempArray.push( heightArray[count] / max_z );	// Z-coord
 
 				colorValue = getColorValue(heightArray[count], min_z, max_z);
-				console.log("colorvalue",colorValue);
+				//console.log("colorvalue",colorValue);
 				tempArray.push(colorValue.r);			// Color value r
 				tempArray.push(colorValue.g);			// Color value g
 				tempArray.push(colorValue.b);			// Color value b
@@ -225,7 +225,7 @@ hg.draw = (function () {
 		min_z = grid.min;
 		max_z = grid.max;
 
-		console.log("Z", max_z, min_z);
+		//console.log("Z", max_z, min_z);
 
 		// Set up the vertexArray
 		vertexArray = setupVertexData( x_dim, y_dim, elements, min_z, max_z );
@@ -238,7 +238,7 @@ hg.draw = (function () {
 
 		// Initialize the faces data to webgl
 		initializeFacesData( facesArray );
-		console.log("yay");
+		//console.log("yay");
 
 		// Initiaalize the Projection, View and Model Matrix
 		// Blabla...
@@ -271,7 +271,7 @@ hg.draw = (function () {
 
 	getColorValue = function( value, minValue, maxValue ) {
 		var intervalValue = (value - minValue) / (maxValue - minValue);
-		console.log("interval", intervalValue);
+		//console.log("interval", intervalValue);
 		return { r : intervalValue,
 				 g : 3*(intervalValue * (1.0 - intervalValue)),
 				 b : 1 - intervalValue

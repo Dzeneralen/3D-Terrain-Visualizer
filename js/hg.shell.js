@@ -82,8 +82,8 @@ hg.shell = (function () {
 		
 		if( pointArray.length > 0 ){
 			//Call a function in hg.calculator.js
-			populateObj.x_dim = 3;
-			populateObj.y_dim = 3;
+			populateObj.x_dim = 50;
+			populateObj.y_dim =50;
 			populateObj.maximumChange = 0.0001;
 			console.log("pointarray", pointArray);
 

@@ -109,6 +109,7 @@ hg.calculator = (function ( ) {
 		try 
 		{
 			heightGrid[i][j] = +(heightValue);
+			console.log("Locking Values at ", i, j);
 			lockedValues[i][j] = 1;
 		} 
 		catch ( error ) 
@@ -131,21 +132,23 @@ hg.calculator = (function ( ) {
 		{	
 			point = pointArray[i];
 			addKnownPoint(point.x, point.y, point.value);
+			console.log("Trying to lock at", point.x, point.y);
 			//console.log("Trying to add", +(point.x), +(point.y), +(point.value));
 		}
 
-		//console.log("HGrid: ",heightGrid);
-		//console.log("LGrid: ",lockedValues);
+		console.log("HGrid: ",heightGrid);
+		console.log("LGrid: ",lockedValues);
 	};
 
 	relaxPoint = function ( i, j, x_dim, y_dim) {
 		if(lockedValues[i][j] === 1) { return false; }
+		//if(i === j) {console.log("Same",i,j);}
 
 		x_dim = x_dim - 1;
 		y_dim = y_dim - 1;
 
-
-		if((i > 0 && i < x_dim) && (j > 0 && j < y_dim)){
+		if(	(i > 0 && i < x_dim) && (j > 0 && j < y_dim)	){
+			//if(i === j) {console.log("Same",i,j);}
 			heightGrid[i][j] = (heightGrid[i+1][j] + heightGrid[i-1][j] + heightGrid[i][j+1] + heightGrid[i][j-1]) * 0.25;
 		}
 		/* Along left side */
