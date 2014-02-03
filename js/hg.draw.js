@@ -76,6 +76,8 @@ hg.draw = (function () {
 	};
 
 	resizeCanvas = function () {
+		webgl.viewportWidth = jqueryMap.$canvas[0].clientWidth;
+		webgl.viewportHeight = jqueryMap.$canvas[0].clientHeight;
 		mat4.perspective(PMatrix, 3.14/2, webgl.viewportWidth / webgl.viewportHeight, 0, 1000  );
 	};
 
@@ -84,14 +86,14 @@ hg.draw = (function () {
 			1.0, 0.0, 0.0, 0.0,
 			0.0, 1.0, 0.0, 0.0,
 			0.0, 0.0, 1.0, 0.0,
-			0.0, 0.0, 0.0, 1.0,
+			0.0, 0.0, 0.0, 1.0
 			]);
 
 		MVMatrix = new Float32Array([
 			1.0, 0.0, 0.0, 0.0,
 			0.0, 1.0, 0.0, 0.0,
 			0.0, 0.0, 1.0, 0.0,
-			0.0, 0.0, 0.0, 1.0,
+			0.0, 0.0, 0.0, 1.0
 			]);
 
 		webgl.uniformMatrix4fv(shaderVariables.u_PMatrix, false, PMatrix);
@@ -121,18 +123,20 @@ hg.draw = (function () {
 
 			}
 		}
-		return  new Uint16Array(tempArray);
+		return  new Uint8Array(tempArray);
 	};
 
 	drawMesh = function( x_dim, y_dim ) {
-		var i,
-			j,
-			offset = 2;
-
 		webgl.clear( webgl.COLOR_BUFFER_BIT | webgl.DEPTH_BUFFER_BIT );
+		var toDraw = (x_dim - 1) * (y_dim - 1) * 6;
 
-		webgl.drawElements(webgl.TRIANGLES, 6 * x_dim * y_dim, webgl.UNSIGNED_BYTE, 0);
+		webgl.drawElements(webgl.TRIANGLES, toDraw, webgl.UNSIGNED_BYTE, 0);
 
+
+				
+				//webgl.drawElements(webgl.TRIANGLES, 3, webgl.UNSIGNED_BYTE, 0);
+
+		// * (x_dim-1) * (y_dim-1)
 	};
 
 	setupVertexData = function( x_dim, y_dim, heightArray, min_z, max_z ){
@@ -145,22 +149,31 @@ hg.draw = (function () {
 			offsetY;
 
 			maxDim = (x_dim > y_dim)? x_dim : y_dim;
-			offsetX = (x_dim - 1) * 0.5;
-			offsetY = (y_dim - 1) * 0.5;
+			maxDim -= 1;
+			offsetX = (x_dim - 1.0) * 0.5;
+			offsetY = (y_dim - 1.0) * 0.5;
+
+			console.log("maxdim", maxDim);
+			console.log("OFFSETX", offsetY);
+			console.log("offsetY", offsetX);
 
 			
-			offsetY = 0;
-			offsetX = 0;
+
 
 		for(i = 0; i < x_dim; i++)
 		{
 			for(j = 0; j < y_dim; j++)
 			{
+				var x = (i - offsetX) / maxDim;
+				var y = (j - offsetY) / maxDim ;
+				var z = heightArray[i+j] / (2*max_z);
+				console.log("Adding point ("+x,y,z+")");
 				tempArray.push( (i - offsetX) / maxDim );	// X-coord
 				tempArray.push( (j - offsetY) / maxDim );	// Y-coord
-				tempArray.push( heightArray[i+j] / (2*max_z) );	// Z-coord
+				tempArray.push( heightArray[i+j] / max_z );	// Z-coord
 
 				colorValue = getColorValue(heightArray[i+j], min_z, max_z);
+				console.log("colorvalue",colorValue);
 				tempArray.push(colorValue.r);			// Color value r
 				tempArray.push(colorValue.g);			// Color value g
 				tempArray.push(colorValue.b);			// Color value b
@@ -211,6 +224,8 @@ hg.draw = (function () {
 		min_z = grid.min;
 		max_z = grid.max;
 
+		console.log("Z", max_z, min_z);
+
 		// Set up the vertexArray
 		vertexArray = setupVertexData( x_dim, y_dim, elements, min_z, max_z );
 
@@ -255,6 +270,7 @@ hg.draw = (function () {
 
 	getColorValue = function( value, minValue, maxValue ) {
 		var intervalValue = (value - minValue) / (maxValue - minValue);
+		console.log("interval", intervalValue);
 		return { r : intervalValue,
 				 g : 3*(intervalValue * (1.0 - intervalValue)),
 				 b : 1 - intervalValue
@@ -348,6 +364,8 @@ hg.draw = (function () {
 		console.log("Height after init", webgl.viewportHeight);
 		PMatrix = mat4.create();
 		resizeCanvas();
+
+		window.onresize = resizeCanvas;
 
 
 
