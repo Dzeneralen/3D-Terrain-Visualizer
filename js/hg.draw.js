@@ -146,6 +146,7 @@ hg.draw = (function () {
 			tempArray = [],
 			maxDim,
 			offsetX,
+			count,
 			offsetY;
 
 			maxDim = (x_dim > y_dim)? x_dim : y_dim;
@@ -159,25 +160,25 @@ hg.draw = (function () {
 
 			
 
-
+		count = 0;
 		for(i = 0; i < x_dim; i++)
 		{
 			for(j = 0; j < y_dim; j++)
 			{
 				var x = (i - offsetX) / maxDim;
 				var y = (j - offsetY) / maxDim ;
-				var z = heightArray[i+j] / (2*max_z);
+				var z = heightArray[count] / max_z;
 				console.log("Adding point ("+x,y,z+")");
 				tempArray.push( (i - offsetX) / maxDim );	// X-coord
 				tempArray.push( (j - offsetY) / maxDim );	// Y-coord
-				tempArray.push( heightArray[i+j] / max_z );	// Z-coord
+				tempArray.push( heightArray[count] / max_z );	// Z-coord
 
-				colorValue = getColorValue(heightArray[i+j], min_z, max_z);
+				colorValue = getColorValue(heightArray[count], min_z, max_z);
 				console.log("colorvalue",colorValue);
 				tempArray.push(colorValue.r);			// Color value r
 				tempArray.push(colorValue.g);			// Color value g
 				tempArray.push(colorValue.b);			// Color value b
-				
+				count++;
 			}
 		}
 
