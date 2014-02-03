@@ -53,21 +53,26 @@ hg.calculator = (function ( ) {
 			max = -9999999,
 			min = 999999,
 			tempElement,
+			counter,
 			elementsArray;
+
 
 		if(heightGrid === undefined) { return false; }
 
 		elementsArray = new Float32Array(settableOptions.x_dim * settableOptions.y_dim);
 
+		counter = 0;
 		for(i = 0; i < settableOptions.x_dim; i++)
 		{
 			for(j = 0; j < settableOptions.y_dim; j++)
 			{
 				tempElement = heightGrid[i][j];
-				elementsArray[i + j] = tempElement;
+				//console.log("Tempvalue at",counter, "is", tempElement);
+				elementsArray[counter] = tempElement;
+				counter++;
 
-				max = (max > tempElement)? max : tempElement;
-				min = (min < tempElement)? min : tempElement;
+				max = (max < tempElement) ? tempElement : max;
+				min = (min > tempElement) ? tempElement : min;
 
 			}
 		}
@@ -94,7 +99,7 @@ hg.calculator = (function ( ) {
 		{
 			if ( settableOptions.hasOwnProperty(key) && options.hasOwnProperty(key) ) {
 				settableOptions[key] = options[key];
-				console.log("KEYCHANGE", key);
+				//console.log("KEYCHANGE", key);
 			}
 		}
 
@@ -126,18 +131,19 @@ hg.calculator = (function ( ) {
 		{	
 			point = pointArray[i];
 			addKnownPoint(point.x, point.y, point.value);
+			//console.log("Trying to add", +(point.x), +(point.y), +(point.value));
 		}
 
-		console.log("HGrid: ",heightGrid);
-		console.log("LGrid: ",lockedValues);
+		//console.log("HGrid: ",heightGrid);
+		//console.log("LGrid: ",lockedValues);
 	};
 
 	relaxPoint = function ( i, j, x_dim, y_dim) {
-
 		if(lockedValues[i][j] === 1) { return false; }
 
 		x_dim = x_dim - 1;
 		y_dim = y_dim - 1;
+
 
 		if((i > 0 && i < x_dim) && (j > 0 && j < y_dim)){
 			heightGrid[i][j] = (heightGrid[i+1][j] + heightGrid[i-1][j] + heightGrid[i][j+1] + heightGrid[i][j-1]) * 0.25;
@@ -153,7 +159,7 @@ hg.calculator = (function ( ) {
 		}
 
 		/* Along the top */	
-		else if(j === y_dim && (i > 1 && i < x_dim)) {
+		else if(j === y_dim && (i > 0 && i < x_dim)) {
 			heightGrid[i][j] = (heightGrid[i+1][j] + heightGrid[i-1][j] + 2.0 * heightGrid[i][j-1]) * 0.25;
 		}
 
@@ -213,7 +219,6 @@ hg.calculator = (function ( ) {
 			if(numberOfSatisfied === allSatisfiedCount)
 			{
 				console.log("Rate of change at an acceptable level after "+iterationNumber+" iterations!");
-				console.log("DONE HGrid: ",heightGrid);
 				return true;
 			}
 		}
