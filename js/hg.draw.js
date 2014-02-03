@@ -130,7 +130,7 @@ hg.draw = (function () {
 		webgl.clear( webgl.COLOR_BUFFER_BIT | webgl.DEPTH_BUFFER_BIT );
 		var toDraw = (x_dim - 1) * (y_dim - 1) * 6;
 
-		webgl.drawElements(webgl.TRIANGLES, toDraw, webgl.UNSIGNED_BYTE, 0);
+		webgl.drawElements(webgl.TRIANGLES, toDraw, webgl.UNSIGNED_SHORT, 0);
 
 
 				
