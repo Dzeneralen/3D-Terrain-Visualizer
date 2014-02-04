@@ -20,11 +20,11 @@ hg.draw = (function () {
 		vertex_shader : String() 
 			+ 'attribute vec3 a_VertexPosition;'
 		    + 'attribute vec3 a_VertexColor;'
-		    /*+ 'uniform mat4 u_MVMatrix;'*/
+		    + 'uniform mat4 u_MVMatrix;'
 		    + 'uniform mat4 u_PMatrix;'
 		    + 'varying vec4 v_Color;'
 		    + 'void main(void) {'
-		    +    'gl_Position = u_PMatrix * vec4(a_VertexPosition, 1.0);'
+		    +    'gl_Position = u_PMatrix * u_MVMatrix * vec4(a_VertexPosition, 1.0);'
 		    +    'v_Color = vec4(a_VertexColor, 1.0);'
 		    + '}',
 		fragment_shader : String()
@@ -40,8 +40,19 @@ hg.draw = (function () {
 		u_MVMatrix : null,
 		u_PMatrix : null
 	},
+	mesh = {
+		x_dim : null,
+		y_dim : null,
+		max_z : null,
+		min_z : null,
+		elements : null,
+		vertexArray : null,
+		facesArray : null
+	},
 	stateMap = {
-		$container : null
+		$container : null,
+		angleVertical : 0,
+		angleHorisontal : 0
 	},
 	PMatrix,
 	MVMatrix,
@@ -49,21 +60,27 @@ hg.draw = (function () {
 	webgl,
 	initModule,
 	setJqueryMap,
-	initGL,
 	getVertexShader,
 	getFragmentShader,
 	getColorValue,
 	cameraChangeEvent,
 	getShaderVariables,
+	setupVertexData,
+	setupFaces,
+	degreeToRadian,
+	drawMesh,
+	resizeCanvas,
+	initGL,
+	initializeKeyboardListener,
 	initializeVertexData,
 	initializeFacesData,
 	initializeMatrixes,
-	setupVertexData,
-	setupFaces,
 	initializeMesh,
-	drawMesh,
-	resizeCanvas,
 	initShaders;
+
+	degreeToRadian = function( degrees ) {
+		return (+(degrees) * 180.0) / Math.PI;
+	};
 
 	getShaderVariables = function( webgl, program ) {
 		/* Attributes */
@@ -71,33 +88,23 @@ hg.draw = (function () {
 		shaderVariables.a_VertexColor = webgl.getAttribLocation( program, 'a_VertexColor' );
 
 		/* Uniforms*/
-		//shaderVariables.u_MVMatrix = webgl.getUniformLocation( program, 'u_MVMatrix' );
+		shaderVariables.u_MVMatrix = webgl.getUniformLocation( program, 'u_MVMatrix' );
 		shaderVariables.u_PMatrix = webgl.getUniformLocation( program, 'u_PMatrix' );
 	};
 
 	resizeCanvas = function () {
+		console.log("Resizing");
 		webgl.viewportWidth = jqueryMap.$canvas[0].clientWidth;
 		webgl.viewportHeight = jqueryMap.$canvas[0].clientHeight;
-		mat4.perspective(PMatrix, 3.14/2, webgl.viewportWidth / webgl.viewportHeight, 0, 1000  );
+		mat4.perspective(PMatrix, 45, webgl.viewportWidth / webgl.viewportHeight, 0, 1000  );
 	};
 
 	initializeMatrixes = function () {
-		PMatrix = new Float32Array([
-			1.0, 0.0, 0.0, 0.0,
-			0.0, 1.0, 0.0, 0.0,
-			0.0, 0.0, 1.0, 0.0,
-			0.0, 0.0, 0.0, 1.0
-			]);
-
-		MVMatrix = new Float32Array([
-			1.0, 0.0, 0.0, 0.0,
-			0.0, 1.0, 0.0, 0.0,
-			0.0, 0.0, 1.0, 0.0,
-			0.0, 0.0, 0.0, 1.0
-			]);
+		PMatrix = mat4.create();
+		MVMatrix = mat4.create();
 
 		webgl.uniformMatrix4fv(shaderVariables.u_PMatrix, false, PMatrix);
-		//webgl.uniformMatrix4fv(shaderVariables.u_MVMatrix, false, MVMatrix);
+		webgl.uniformMatrix4fv(shaderVariables.u_MVMatrix, false, MVMatrix);
 	};
 
 	setupFaces = function( x_dim, y_dim ) {
@@ -126,17 +133,20 @@ hg.draw = (function () {
 		return  new Uint16Array(tempArray);
 	};
 
-	drawMesh = function( x_dim, y_dim ) {
+	drawMesh = function( ) {
 		webgl.clear( webgl.COLOR_BUFFER_BIT | webgl.DEPTH_BUFFER_BIT );
-		var toDraw = (x_dim - 1) * (y_dim - 1) * 6;
+		var toDraw = (mesh.x_dim - 1) * (mesh.y_dim - 1) * 6;
+
+		mat4.identity(MVMatrix);
+		mat4.rotate(MVMatrix, MVMatrix, degreeToRadian(stateMap.angleHorisontal), [1,0,0]);
+		mat4.rotate(MVMatrix, MVMatrix, degreeToRadian(stateMap.angleVertical), [0,0,1]);
+		mat4.scale(MVMatrix, MVMatrix, [0.5,0.5,0.5]);
+
+
+		webgl.uniformMatrix4fv(shaderVariables.u_PMatrix, false, PMatrix);
+		webgl.uniformMatrix4fv(shaderVariables.u_MVMatrix, false, MVMatrix);
 
 		webgl.drawElements(webgl.TRIANGLES, toDraw, webgl.UNSIGNED_SHORT, 0);
-
-
-				
-				//webgl.drawElements(webgl.TRIANGLES, 3, webgl.UNSIGNED_BYTE, 0);
-
-		// * (x_dim-1) * (y_dim-1)
 	};
 
 	setupVertexData = function( x_dim, y_dim, heightArray, min_z, max_z ){
@@ -166,15 +176,11 @@ hg.draw = (function () {
 		{
 			for(j = 0; j < y_dim; j++)
 			{
-				var x = (i - offsetX) / maxDim;
-				var y = (j - offsetY) / maxDim ;
-				var z = heightArray[count] / max_z;
 				tempArray.push( (i - offsetX) / maxDim );	// X-coord
 				tempArray.push( (j - offsetY) / maxDim );	// Y-coord
 				tempArray.push( heightArray[count] / max_z );	// Z-coord
 
 				colorValue = getColorValue(heightArray[count], min_z, max_z);
-				//console.log("colorvalue",colorValue);
 				tempArray.push(colorValue.r);			// Color value r
 				tempArray.push(colorValue.g);			// Color value g
 				tempArray.push(colorValue.b);			// Color value b
@@ -211,67 +217,77 @@ hg.draw = (function () {
 	};
 
 	initializeMesh = function ( grid ) {
-		var x_dim,
-			y_dim,
-			min_z,
-			max_z,
-			elements,
-			vertexArray,
-			facesArray;
 
-		x_dim = grid.x_dim;
-		y_dim = grid.y_dim;
-		elements = grid.elements;
-		min_z = grid.min;
-		max_z = grid.max;
-
-		//console.log("Z", max_z, min_z);
+		mesh.x_dim = grid.x_dim;
+		mesh.y_dim = grid.y_dim;
+		mesh.elements = grid.elements;
+		mesh.min_z = grid.min;
+		mesh.max_z = grid.max;
 
 		// Set up the vertexArray
-		vertexArray = setupVertexData( x_dim, y_dim, elements, min_z, max_z );
+		mesh.vertexArray = setupVertexData( mesh.x_dim, mesh.y_dim, mesh.elements, mesh.min_z, mesh.max_z );
 
 		// Set up Faces with that array in mind
-		facesArray = setupFaces( x_dim, y_dim );
+		mesh.facesArray = setupFaces( mesh.x_dim, mesh.y_dim );
 
 		// Initialize the vertex data to webgl
-		initializeVertexData( vertexArray );
+		initializeVertexData( mesh.vertexArray );
 
 		// Initialize the faces data to webgl
-		initializeFacesData( facesArray );
-		//console.log("yay");
+		initializeFacesData( mesh.facesArray );
 
 		// Initiaalize the Projection, View and Model Matrix
-		// Blabla...
 		initializeMatrixes();
 
-		// Initialize the keyboardListeners
-		// Blabla...
-
 		// Start Drawing
-		// Blabla...
-		drawMesh(x_dim, y_dim);
+		drawMesh();
 
 
 	};
 
-	cameraChangeEvent = function( key ) {
-		switch( key ){
-			case 'up':
+	handleKeyboardListener = function ( event ) {
+		switch( event.keyCode ){
+			case 37:
+				cameraChangeEvent('left');
+				console.log("left");
 				break;
-			case 'down':
+			case 38:
+				cameraChangeEvent('up');
 				break;
-			case 'left':
+			case 39:
+				cameraChangeEvent('right');
 				break;
-			case 'right':
+			case 40:
+				cameraChangeEvent('down');
 				break;
 			default:
 				break;
 		}
 	};
 
+	cameraChangeEvent = function( key ) {
+		switch( key ){
+			case 'left':
+				stateMap.angleVertical += 1;
+				break;
+			case 'right':
+				stateMap.angleVertical -= 1;
+				break;
+			case 'up':
+				console.log("left rotate");
+				stateMap.angleHorisontal += 1;
+				break;
+			case 'down':
+				stateMap.angleHorisontal -= 1;
+				break;
+			default:
+				break;
+		}
+		drawMesh();
+	};
+
 	getColorValue = function( value, minValue, maxValue ) {
 		var intervalValue = (value - minValue) / (maxValue - minValue);
-		//console.log("interval", intervalValue);
 		return { r : intervalValue,
 				 g : 3*(intervalValue * (1.0 - intervalValue)),
 				 b : 1 - intervalValue
@@ -327,8 +343,6 @@ hg.draw = (function () {
 
 		webgl.useProgram(shaderProgram);
 
-
-
 	};
 
 	setJqueryMap = function() {
@@ -358,15 +372,9 @@ hg.draw = (function () {
 		webgl.enable(webgl.DEPTH_TEST);
 		webgl.clear(webgl.COLOR_BUFFER_BIT);
 
-		//Something strange is going on here.
-		console.log("Height before init", webgl.viewportHeight);
-		webgl.viewportWidth = jqueryMap.$canvas[0].clientWidth;
-		webgl.viewportHeight = jqueryMap.$canvas[0].clientHeight;
-		console.log("Height after init", webgl.viewportHeight);
-		PMatrix = mat4.create();
-		resizeCanvas();
 
 		window.onresize = resizeCanvas;
+		document.onkeydown = handleKeyboardListener;
 
 
 
@@ -382,5 +390,6 @@ hg.draw = (function () {
 	};
 
 	return { initModule : initModule,
-			 initializeMesh : initializeMesh };
+			 initializeMesh : initializeMesh
+			 };
 }());
