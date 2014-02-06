@@ -17,7 +17,10 @@ hg.shell = (function () {
 	var configMap = {
 		main_html : String()
 			+ '<div class="hg-shell-webgl"></div>'
-			+ '<div class="hg-shell-sidebar"></div>',
+			+ '<div class="hg-shell-sidebar">'
+			+ '<div class="hg-shell-sidebar-menu"></div>'
+			+ '<div class="hg-shell-sidebar-filedrop"></div>'
+			+ '</div>',
 		sidebar_title : 'Tools inc'
 	},
 	stateMap = {
@@ -34,7 +37,9 @@ hg.shell = (function () {
 		jqueryMap = {
 			$container : $container,
 			$webgl : $container.find( '.hg-shell-webgl' ),
-			$sidebar : $container.find( '.hg-shell-sidebar' )
+			$sidebar : $container.find( '.hg-shell-sidebar' ),
+			$sidebar_menu : $container.find( '.hg-shell-sidebar-menu' ),
+			$sidebar_filedrop : $container.find( '.hg-shell-sidebar-filedrop' )
 		};
 	};
 
@@ -106,7 +111,7 @@ hg.shell = (function () {
 		stateMap.$container.html( configMap.main_html );
 		setJqueryMap();
 
-		hg.filehandler.initModule( jqueryMap.$sidebar, parseTextStringToPoints );
+		hg.filehandler.initModule( jqueryMap.$sidebar_filedrop, parseTextStringToPoints );
 		hg.draw.initModule( jqueryMap.$webgl );
 
 	};
