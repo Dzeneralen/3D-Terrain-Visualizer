@@ -16,7 +16,7 @@ white : true
 hg.draw = (function () {
 
 	var configMap = {
-		main_html : '<canvas id="webgl" style="width:100%;height:100%;">Please use a browser which supports the Canvas element</canvas>',
+		main_html : '<canvas id="webgl" width="1920" height="1080" style="width:100%; height:100%;">Please use a browser which supports the Canvas element</canvas>',
 		vertex_shader : String() 
 			+ 'attribute vec3 a_VertexPosition;'
 		    + 'attribute vec3 a_VertexColor;'
@@ -52,7 +52,8 @@ hg.draw = (function () {
 	stateMap = {
 		$container : null,
 		angleVertical : 0,
-		angleHorisontal : 0
+		angleHorisontal : 0.2,
+		scale : 0.5
 	},
 	PMatrix,
 	MVMatrix,
@@ -70,6 +71,7 @@ hg.draw = (function () {
 	degreeToRadian,
 	drawMesh,
 	resizeCanvas,
+	setPerspective,
 	initGL,
 	initializeKeyboardListener,
 	initializeVertexData,
@@ -92,11 +94,19 @@ hg.draw = (function () {
 		shaderVariables.u_PMatrix = webgl.getUniformLocation( program, 'u_PMatrix' );
 	};
 
+	setPerspective = function ( ) {
+		var ratio = webgl.viewportWidth / webgl.viewportHeight;
+		mat4.identity(PMatrix);
+		mat4.ortho(PMatrix, -1.0 *ratio , 1.0 *ratio , -1.0, 1.0, -5.0, 5.0  );
+	};
+
 	resizeCanvas = function () {
 		console.log("Resizing");
 		webgl.viewportWidth = jqueryMap.$canvas[0].clientWidth;
 		webgl.viewportHeight = jqueryMap.$canvas[0].clientHeight;
-		mat4.perspective(PMatrix, 45, webgl.viewportWidth / webgl.viewportHeight, 0, 1000  );
+		setPerspective();
+
+		drawMesh();
 	};
 
 	initializeMatrixes = function () {
@@ -140,12 +150,12 @@ hg.draw = (function () {
 		mat4.identity(MVMatrix);
 		mat4.rotate(MVMatrix, MVMatrix, degreeToRadian(stateMap.angleHorisontal), [1,0,0]);
 		mat4.rotate(MVMatrix, MVMatrix, degreeToRadian(stateMap.angleVertical), [0,0,1]);
-		mat4.scale(MVMatrix, MVMatrix, [0.5,0.5,0.5]);
+		mat4.scale(MVMatrix, MVMatrix, [stateMap.scale, stateMap.scale, stateMap.scale]);
 
 
 		webgl.uniformMatrix4fv(shaderVariables.u_PMatrix, false, PMatrix);
 		webgl.uniformMatrix4fv(shaderVariables.u_MVMatrix, false, MVMatrix);
-
+		if(mesh.x_dim === null || mesh.y_dim === null) return;
 		webgl.drawElements(webgl.TRIANGLES, toDraw, webgl.UNSIGNED_SHORT, 0);
 	};
 
@@ -165,11 +175,6 @@ hg.draw = (function () {
 			offsetX = (x_dim - 1.0) * 0.5;
 			offsetY = (y_dim - 1.0) * 0.5;
 
-			console.log("maxdim", maxDim);
-			console.log("OFFSETX", offsetY);
-			console.log("offsetY", offsetX);
-
-			
 
 		count = 0;
 		for(i = 0; i < x_dim; i++)
@@ -235,9 +240,7 @@ hg.draw = (function () {
 
 		// Initialize the faces data to webgl
 		initializeFacesData( mesh.facesArray );
-
-		// Initiaalize the Projection, View and Model Matrix
-		initializeMatrixes();
+		
 
 		// Start Drawing
 		drawMesh();
@@ -249,7 +252,6 @@ hg.draw = (function () {
 		switch( event.keyCode ){
 			case 37:
 				cameraChangeEvent('left');
-				console.log("left");
 				break;
 			case 38:
 				cameraChangeEvent('up');
@@ -260,7 +262,14 @@ hg.draw = (function () {
 			case 40:
 				cameraChangeEvent('down');
 				break;
+			case 107:
+				cameraChangeEvent('zoomin');
+				break;
+			case 109:
+				cameraChangeEvent('zoomout');
+				break;
 			default:
+				console.log(event.keyCode);
 				break;
 		}
 	};
@@ -268,17 +277,22 @@ hg.draw = (function () {
 	cameraChangeEvent = function( key ) {
 		switch( key ){
 			case 'left':
-				stateMap.angleVertical += 1;
+				stateMap.angleVertical += 0.1;
 				break;
 			case 'right':
-				stateMap.angleVertical -= 1;
+				stateMap.angleVertical -= 0.1;
 				break;
 			case 'up':
-				console.log("left rotate");
-				stateMap.angleHorisontal += 1;
+				stateMap.angleHorisontal += 0.1;
 				break;
 			case 'down':
-				stateMap.angleHorisontal -= 1;
+				stateMap.angleHorisontal -= 0.1;
+				break;
+			case 'zoomin':
+				stateMap.scale = stateMap.scale * 1.1;
+				break;
+			case 'zoomout':
+				stateMap.scale = stateMap.scale * 0.9;
 				break;
 			default:
 				break;
@@ -375,11 +389,15 @@ hg.draw = (function () {
 
 		window.onresize = resizeCanvas;
 		document.onkeydown = handleKeyboardListener;
+		initializeMatrixes();
+		resizeCanvas();
+		setPerspective();
 
 
 
 
 	};
+
 
 	initModule = function( $container ) {
 		stateMap.$container = $container;
