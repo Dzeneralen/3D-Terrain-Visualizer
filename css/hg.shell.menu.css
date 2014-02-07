@@ -1,4 +1,22 @@
 .hg-shell-sidebar-menu {
-	/* Endre, midlertidig*/
+	color: #fff;
 	background-color: #33f;
+}
+
+.hg-shell-sidebar-menu-title {
+	text-align: center;
+	font-size: 2.5em;
+}
+
+.hg-shell-sidebar-menu-info {
+	padding: 3em;
+}
+
+.hg-shell-sidebar-filedrop {
+	padding: 1em;
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	left: 0;
+	top: 80%;
 }

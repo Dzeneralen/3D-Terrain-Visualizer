@@ -111,6 +111,8 @@ hg.shell = (function () {
 		stateMap.$container.html( configMap.main_html );
 		setJqueryMap();
 
+		hg.shell.menu.initModule( jqueryMap.$sidebar_menu );
+
 		hg.filehandler.initModule( jqueryMap.$sidebar_filedrop, parseTextStringToPoints );
 		hg.draw.initModule( jqueryMap.$webgl );
 
