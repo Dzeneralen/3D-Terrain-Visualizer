@@ -1,3 +1,4 @@
+
 .hg-shell-sidebar-menu {
 	color: #fff;
 	background-color: #33f;
@@ -19,4 +20,48 @@
 	right: 0;
 	left: 0;
 	top: 80%;
+}
+
+#SubmitButton {
+    display:block;
+    margin:0.75em auto;
+    cursor: pointer;
+    padding: 0.5em;
+}
+
+#pointEntry {
+	height: 5.25em;
+	width: 90%;
+	margin-left: 1.5em;
+	resize: none;
+}
+
+#UserInput label {
+	display: block;
+	margin-left: 1em;
+	font-weight: bold;
+}
+
+#x_dim {
+	width: 25%;
+	margin-left: 1.5em;
+	margin-bottom: 0.75em;
+}
+
+#y_dim {
+	width: 25%;
+	margin-left: 1.5em;
+	margin-bottom: 0.75em;
+}
+
+::-webkit-input-placeholder::before {
+  content: "X1 Y1 Value\000AX2 Y2 Value\000AX3 Y3 Value\000A...";
+}
+
+::-moz-placeholder::before {
+  content: "X1 Y1 Value\000AX2 Y2 Value\000AX3 Y3 Value\000A...";
+}
+
+:-ms-input-placeholder::before {
+  content: "X1 Y1 Value\000AX2 Y2 Value\000AX3 Y3 Value\000A...";
 }

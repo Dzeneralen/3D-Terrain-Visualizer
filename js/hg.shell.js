@@ -24,12 +24,15 @@ hg.shell = (function () {
 		sidebar_title : 'Tools inc'
 	},
 	stateMap = {
-		$container : null
+		$container : null,
+		x_dim : 50,
+		y_dim : 50
 	},
 	jqueryMap = {},
 	initModule,
 	parseTextStringToPoints,
 	parsePointFromString,
+	parseInputFromMenu,
 	setJqueryMap;
 
 	setJqueryMap = function () {
@@ -42,6 +45,17 @@ hg.shell = (function () {
 			$sidebar_filedrop : $container.find( '.hg-shell-sidebar-filedrop' )
 		};
 	};
+
+	parseInputFromMenu = function( form ) {
+
+		stateMap.x_dim = parseInt(form.x_dim.value, 10);
+		stateMap.y_dim = parseInt(form.y_dim.value, 10);
+
+		if(form.pointEntry.value.length > 4)
+		{
+			parseTextStringToPoints(form.pointEntry.value);
+		}
+	}
 
 	parsePointFromString = function ( string ) {
 		var x,
@@ -87,10 +101,9 @@ hg.shell = (function () {
 		
 		if( pointArray.length > 0 ){
 			//Call a function in hg.calculator.js
-			populateObj.x_dim = 50;
-			populateObj.y_dim =50;
+			populateObj.x_dim = stateMap.x_dim;
+			populateObj.y_dim = stateMap.y_dim;
 			populateObj.maximumChange = 0.0001;
-			console.log("pointarray", pointArray);
 
 			hg.calculator.configureGrid( populateObj );
 			hg.calculator.populateKnownValues( pointArray );
@@ -120,7 +133,8 @@ hg.shell = (function () {
 
 
 	/* Public methods */
-	return {initModule : initModule};
+	return {initModule : initModule,
+			parseInputFromMenu : parseInputFromMenu};
 
 
 }());

@@ -17,7 +17,7 @@ hg.filehandler = (function () {
 	var configMap = {
 		main_html : String()
 			+ '<div class="hg-filehandler-dropbox"></div>',
-		dropbox_infotext : '<div class="hg-filehandler-dropbox-text">Drop your files here</div>',
+		dropbox_infotext : '<div class="hg-filehandler-dropbox-text">If you have points in a textfile drop it here</div>',
 		callback_func : null
 	},
 	stateMap = {

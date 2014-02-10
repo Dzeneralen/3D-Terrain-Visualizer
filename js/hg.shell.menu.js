@@ -24,7 +24,22 @@ hg.shell.menu = (function () {
 		menu_info_text : String()
 			+ 'Use the arrowkeys to rotate the 3D model. You can also press + and - to zoom in and out.',
 		controls : String()
-			+ 'Controls go here'
+			+ '<form id="UserInput" name="UserInput" ACTION="">'
+			+ '<legend>Try it yourself!</legend>'
+			+ '<fieldset>'
+			+ '<div>'
+			+ '<label for="x_dim">X-Dimension</label>'
+			+ '<input id="x_dim" name="x_dim" type="number" min="2"  value="50" required/>'
+			+ '</div>'
+			+ '<div>'
+			+ '<label for="y_dim">Y-Dimension</label>'
+			+ '<input id="y_dim" name="y_dim" type="number" min="2"  value="50" required/>'
+			+ '</div>'
+			+ '<label for="pointEntry">Enter known points:</label>'
+			+ '<textarea id="pointEntry" name="pointEntry" rows=4 type="text" placeholder=" "></textarea>'
+			+ '<input id="SubmitButton" name="SubmitButton" type="button" Value="Process" onClick="hg.shell.parseInputFromMenu(this.form)">'
+			+ '</fieldset>'
+			+ '</form>'
 	},
 	stateMap = {
 		$container : null,
