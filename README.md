@@ -6,5 +6,5 @@ _3D Terrain Visualizer_ created using _JavaScript_ and _WebGL_. Takes input in t
 ![](https://raw2.github.com/Dzeneralen/3D-Terrain-Visualizer/master/example.PNG)
 
 
-__P.S.__
+__N.B.__
 The program is created just for __learning purposes__ and may contain bugs or bad practices the owner is not aware of :)
